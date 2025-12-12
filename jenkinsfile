@@ -8,7 +8,7 @@ pipeline {
     }
     stage('Build') {
       steps {
-        sh 'echo build step — run your build commands here'
+        bat 'echo build step — run your build commands here'
       }
     }
   }
