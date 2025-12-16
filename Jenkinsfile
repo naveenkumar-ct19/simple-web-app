@@ -2,57 +2,50 @@ pipeline {
     agent any
 
     environment {
-        IMAGE_NAME = "naveen2182001/simple-web"
-        IMAGE_TAG  = "latest"
+        IMAGE_NAME = "docker.io/naveen2182001/simple-web:latest"
     }
 
     stages {
 
         stage('Checkout') {
             steps {
-                echo "Cloning latest code from GitHub..."
                 git branch: 'main',
                     url: 'https://github.com/naveenkumar-ct19/simple-web-app.git'
             }
         }
-        
+
         stage('Build Image') {
-        steps {
-            bat '''
-            cd C:\\ProgramData\\Jenkins\\.jenkins\\workspace\\simple-web-app
-            podman build -t docker.io/%IMAGE_NAME%:%IMAGE_TAG% .
-            '''
+            steps {
+                sh '''
+                    pwd
+                    ls -la
+                    podman build -t $IMAGE_NAME .
+                '''
             }
         }
 
-        stage('Push Docker Image') {
-            environment {
-                DOCKER_CREDS = credentials('dockerhub-creds')
-            }
+        stage('Login to Docker Hub') {
             steps {
-                echo "Pushing Docker image..."
-                bat """
-                echo %DOCKER_CREDS_PSW% | docker login -u %DOCKER_CREDS_USR% --password-stdin
-                docker push %IMAGE_NAME%:%IMAGE_TAG%
-                docker logout
-                """
+                withCredentials([usernamePassword(
+                    credentialsId: 'dockerhub-creds',
+                    usernameVariable: 'DOCKER_USER',
+                    passwordVariable: 'DOCKER_PASS'
+                )]) {
+                    sh 'echo $DOCKER_PASS | podman login docker.io -u $DOCKER_USER --password-stdin'
+                }
+            }
+        }
+
+        stage('Push Image') {
+            steps {
+                sh 'podman push $IMAGE_NAME'
             }
         }
 
         stage('Deploy to Kubernetes') {
             steps {
-                echo "Deploying to Kubernetes..."
-                bat "kubectl apply -f deployment.yaml"
+                sh 'kubectl apply -f deployment.yaml'
             }
-        }
-    }
-
-    post {
-        success {
-            echo "✅ Pipeline completed successfully!"
-        }
-        failure {
-            echo "❌ Pipeline failed!"
         }
     }
 }
