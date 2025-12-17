@@ -2,7 +2,7 @@ pipeline {
     agent any
 
     environment {
-        REGISTRY_AUTH_FILE = "${WORKSPACE}\\podman-auth.json"
+        REGISTRY_AUTH_FILE = "${WORKSPACE}\\auth.json"
     }
 
     stages {
@@ -21,6 +21,7 @@ pipeline {
                     passwordVariable: 'DOCKER_PASS'
                 )]) {
                     bat '''
+                    if exist auth.json del auth.json
                     echo %DOCKER_PASS% | podman login registry-1.docker.io -u %DOCKER_USER% --password-stdin
                     '''
                 }
