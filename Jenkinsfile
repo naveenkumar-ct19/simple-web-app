@@ -14,19 +14,12 @@ pipeline {
             }
         }
 
-        stage('Build Image') {
+        stage('Build App Image') {
             steps {
                 sh '''
-                    echo "Workspace:"
                     pwd
                     ls -la
-
-                    # Ensure correct file name
-                    if [ -f dockerfile ]; then
-                        mv dockerfile Dockerfile
-                    fi
-
-                    podman build -t $IMAGE_NAME .
+                    podman build --userns=host -t $IMAGE_NAME -f Dockerfile .
                 '''
             }
         }
@@ -38,10 +31,7 @@ pipeline {
                     usernameVariable: 'DOCKER_USER',
                     passwordVariable: 'DOCKER_PASS'
                 )]) {
-                    sh '''
-                        echo "$DOCKER_PASS" | podman login docker.io \
-                        -u "$DOCKER_USER" --password-stdin
-                    '''
+                    sh 'echo "$DOCKER_PASS" | podman login docker.io -u "$DOCKER_USER" --password-stdin'
                 }
             }
         }
