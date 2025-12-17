@@ -2,14 +2,26 @@ pipeline {
     agent any
 
     environment {
-        REGISTRY_AUTH_FILE = "${WORKSPACE}\\auth.json"
+        IMAGE_NAME = "docker.io/naveen2182001/simple-web:latest"
     }
 
     stages {
 
-        stage('Build Image') {
+        stage('Check Tools') {
             steps {
-                bat 'podman build -t docker.io/naveen2182001/simple-web:latest .'
+                sh '''
+                docker --version
+                kubectl version --client
+                minikube status
+                '''
+            }
+        }
+
+        stage('Build Docker Image') {
+            steps {
+                sh '''
+                docker build -t $IMAGE_NAME .
+                '''
             }
         }
 
@@ -20,9 +32,8 @@ pipeline {
                     usernameVariable: 'DOCKER_USER',
                     passwordVariable: 'DOCKER_PASS'
                 )]) {
-                    bat '''
-                    if exist auth.json del auth.json
-                    echo %DOCKER_PASS% | podman login registry-1.docker.io -u %DOCKER_USER% --password-stdin
+                    sh '''
+                    echo "$DOCKER_PASS" | docker login -u "$DOCKER_USER" --password-stdin
                     '''
                 }
             }
@@ -30,13 +41,18 @@ pipeline {
 
         stage('Push Image') {
             steps {
-                bat 'podman push docker.io/naveen2182001/simple-web:latest'
+                sh '''
+                docker push $IMAGE_NAME
+                '''
             }
         }
 
-        stage('Deploy to Kubernetes') {
+        stage('Deploy to Minikube') {
             steps {
-                bat 'kubectl apply -f deployment.yaml'
+                sh '''
+                kubectl apply -f deployment.yaml
+                kubectl rollout status deployment/simple-web
+                '''
             }
         }
     }
