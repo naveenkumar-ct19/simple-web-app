@@ -7,10 +7,19 @@ pipeline {
 
     stages {
 
+        stage('Clean Workspace') {
+            steps {
+                deleteDir() // cleans old files
+            }
+        }
+
         stage('Checkout') {
             steps {
-                git branch: 'main',
-                    url: 'https://github.com/naveenkumar-ct19/simple-web-app.git'
+                checkout([$class: 'GitSCM',
+                          branches: [[name: '*/main']],
+                          userRemoteConfigs: [[
+                              url: 'https://github.com/naveenkumar-ct19/simple-web-app.git'
+                          ]]])
             }
         }
 
