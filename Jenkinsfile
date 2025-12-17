@@ -16,7 +16,7 @@ pipeline {
 
         stage('Build Image') {
             steps {
-                sh 'podman build -t $IMAGE_NAME .'
+                sh 'sudo podman build -t $IMAGE_NAME . || podman build -t $IMAGE_NAME .'
             }
         }
 
