@@ -21,7 +21,7 @@ pipeline {
                     passwordVariable: 'DOCKER_PASS'
                 )]) {
                     bat '''
-                    echo %DOCKER_PASS% | podman login docker.io -u %DOCKER_USER% --password-stdin
+                    echo %DOCKER_PASS% | podman login registry-1.docker.io -u %DOCKER_USER% --password-stdin
                     '''
                 }
             }
