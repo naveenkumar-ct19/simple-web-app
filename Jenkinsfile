@@ -1,6 +1,10 @@
 pipeline {
     agent any
 
+    environment {
+        REGISTRY_AUTH_FILE = "${WORKSPACE}\\podman-auth.json"
+    }
+
     stages {
 
         stage('Build Image') {
