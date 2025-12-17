@@ -19,7 +19,7 @@ pipeline {
                 sh '''
                     pwd
                     ls -la
-                    podman build --userns=host -t $IMAGE_NAME -f Dockerfile .
+                    podman build -t $IMAGE_NAME -f Dockerfile .
                 '''
             }
         }
