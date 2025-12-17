@@ -2,7 +2,7 @@ pipeline {
     agent any
 
     environment {
-        DOCKER_IMAGE = "your-dockerhub-username/simple-web-app:latest"
+        DOCKER_IMAGE = "naveen2182001/simple-web-app:latest"
     }
 
     stages {
@@ -14,8 +14,9 @@ pipeline {
 
         stage('Build Docker Image') {
             steps {
-                // Append /usr/local/bin to PATH safely
-                withEnv(['PATH+DOCKER=/usr/local/bin']) {
+                // Append /usr/local/bin safely
+                withEnv(['PATH+DOCKER=/usr/local/bin:/usr/bin:/bin']) {
+                    sh 'echo $PATH'
                     sh 'docker --version'
                     sh "docker build -t $DOCKER_IMAGE ."
                 }
@@ -24,7 +25,7 @@ pipeline {
 
         stage('Push Docker Image') {
             steps {
-                withEnv(['PATH+DOCKER=/usr/local/bin']) {
+                withEnv(['PATH+DOCKER=/usr/local/bin:/usr/bin:/bin']) {
                     withCredentials([usernamePassword(credentialsId: 'docker-hub-cred', usernameVariable: 'DOCKER_USER', passwordVariable: 'DOCKER_PASS')]) {
                         sh 'echo $DOCKER_PASS | docker login -u $DOCKER_USER --password-stdin'
                         sh "docker push $DOCKER_IMAGE"
@@ -35,7 +36,7 @@ pipeline {
 
         stage('Deploy to Kubernetes') {
             steps {
-                withEnv(['PATH+KUBECTL=/usr/local/bin']) {
+                withEnv(['PATH+KUBECTL=/usr/local/bin:/usr/bin:/bin']) {
                     sh 'kubectl apply -f deployment.yaml'
                     sh 'kubectl apply -f service.yaml'
                 }
