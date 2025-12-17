@@ -1,0 +1,17 @@
+FROM jenkins/jenkins:lts
+
+USER root
+
+RUN apt-get update && \
+    apt-get install -y curl podman && \
+    rm -rf /var/lib/apt/lists/*
+
+# Install kubectl
+RUN curl -L https://dl.k8s.io/release/stable.txt -o /tmp/k8s_version && \
+    curl -L https://dl.k8s.io/release/$(cat /tmp/k8s_version)/bin/linux/amd64/kubectl -o /usr/bin/kubectl && \
+    chmod +x /usr/bin/kubectl
+
+# Verify
+RUN kubectl version --client
+
+USER jenkins
