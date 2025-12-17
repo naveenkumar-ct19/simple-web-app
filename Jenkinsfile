@@ -14,13 +14,9 @@ pipeline {
             }
         }
 
-        stage('Build App Image') {
+        stage('Build Image') {
             steps {
-                sh '''
-                    pwd
-                    ls -la
-                    podman build -t $IMAGE_NAME -f Dockerfile .
-                '''
+                sh 'podman build -t $IMAGE_NAME .'
             }
         }
 
