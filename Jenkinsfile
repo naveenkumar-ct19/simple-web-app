@@ -26,7 +26,7 @@ pipeline {
         stage('Push Docker Image') {
             steps {
                 withEnv(['PATH+DOCKER=/usr/local/bin:/usr/bin:/bin']) {
-                    withCredentials([usernamePassword(credentialsId: 'docker-hub-cred', usernameVariable: 'DOCKER_USER', passwordVariable: 'DOCKER_PASS')]) {
+                    withCredentials([usernamePassword(credentialsId: 'dockerhub-creds', usernameVariable: 'DOCKER_USER', passwordVariable: 'DOCKER_PASS')]) {
                         sh 'echo $DOCKER_PASS | docker login -u $DOCKER_USER --password-stdin'
                         sh "docker push $DOCKER_IMAGE"
                     }
