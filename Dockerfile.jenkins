@@ -2,16 +2,13 @@ FROM jenkins/jenkins:lts
 
 USER root
 
+# Install Git, Podman, curl, and other tools
 RUN apt-get update && \
-    apt-get install -y curl podman && \
+    apt-get install -y git podman curl && \
     rm -rf /var/lib/apt/lists/*
 
 # Install kubectl
-RUN curl -L https://dl.k8s.io/release/stable.txt -o /tmp/k8s_version && \
-    curl -L https://dl.k8s.io/release/$(cat /tmp/k8s_version)/bin/linux/amd64/kubectl -o /usr/bin/kubectl && \
-    chmod +x /usr/bin/kubectl
-
-# Verify
-RUN kubectl version --client
+RUN curl -LO "https://dl.k8s.io/release/$(curl -L -s https://dl.k8s.io/release/stable.txt)/bin/linux/amd64/kubectl" && \
+    chmod +x kubectl && mv kubectl /usr/local/bin/
 
 USER jenkins
