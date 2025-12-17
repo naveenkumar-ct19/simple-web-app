@@ -7,6 +7,14 @@ pipeline {
 
     stages {
 
+        stages {
+
+        stage('Checkout') {
+            steps {
+                checkout scm
+            }
+        }
+        
         stage('Check Tools') {
             steps {
                 sh '''
